@@ -51,10 +51,18 @@ async def message_handler(message: Message):
     print(f"[INFO] User {message.from_user.id} sent: {message.text}")
     try:
         llm_response = call_llm(message.text, SYSTEM_PROMPT)
+    except Exception as e:
+        print(f"[ERROR] LLM error: {e}")
+        try:
+            await message.answer("Произошла ошибка при обращении к AI. Попробуйте позже.")
+        except Exception as telegram_error:
+            print(f"[ERROR] Telegram API error: {telegram_error}")
+        return
+    
+    try:
         await message.answer(llm_response)
     except Exception as e:
-        print(f"[ERROR] Error processing message: {e}")
-        await message.answer("Произошла ошибка при обработке вашего запроса. Попробуйте позже.")
+        print(f"[ERROR] Telegram API error: {e}")
 
 # 5. Запуск
 async def main():
